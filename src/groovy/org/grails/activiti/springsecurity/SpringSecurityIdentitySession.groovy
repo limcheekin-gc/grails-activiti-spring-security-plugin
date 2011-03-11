@@ -113,7 +113,7 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 		}
 		LOG.debug "query.groupId = ${query.groupId}"
 		if (users && query.groupId) {
-			users = users.findAll { it.authorities*.id.contains(query.groupId as Long) }
+			users = users.findAll { it.authorities*.id.contains(query.groupId) }
 		}
 		return users
 	}
@@ -194,7 +194,7 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	List<Group> findGroupsByUser(String userId) {
 		LOG.debug "findGroupsByUser (${userId})"
 		def user = getUserDomainClass().get(userId)
-		def groups = user?.authorities
+		def groups = user?.authorities.toList()
 		return groups
 	}
 	
