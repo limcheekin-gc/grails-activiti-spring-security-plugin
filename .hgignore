@@ -1,0 +1,7 @@
+
+syntax: regexp
+^grails-activiti-spring-security-0\.1\.zip$
+syntax: regexp
+^plugin\.xml$
+syntax: regexp
+^target$
