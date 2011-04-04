@@ -23,7 +23,7 @@ import org.grails.activiti.ActivitiConstants
  */
 class ActivitiSpringSecurityGrailsPlugin {
 	// the plugin version
-	def version = "0.1"
+	def version = "0.2"
 	// the version or versions of Grails the plugin is designed for
 	def grailsVersion = "1.3.3 > *"
 	// the other plugins this plugin depends on
@@ -52,7 +52,8 @@ The plugin integrates Spring Security to Activiti as custom IdentityService by i
 		def disabledActiviti = System.getProperty("disabledActiviti")
 		
 		if (!disabledActiviti) {
-			println "Activiti Process Engine with Spring Security Initialization ..."	  
+			println "Activiti Process Engine with Spring Security Initialization ..."
+			interactiveAuthenticationSuccessEventListener(org.grails.activiti.springsecurity.InteractiveAuthenticationSuccessEventListener)
 			springSecurityIdentitySessionFactory(org.grails.activiti.springsecurity.SpringSecurityIdentitySessionFactory)
 			processEngineConfiguration(org.activiti.spring.SpringProcessEngineConfiguration) {
 				processEngineName = CH.config.activiti.processEngineName?:ActivitiConstants.DEFAULT_PROCESS_ENGINE_NAME

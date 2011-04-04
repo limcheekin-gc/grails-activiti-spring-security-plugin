@@ -29,6 +29,8 @@ import grails.util.GrailsNameUtils as GNU
 import org.activiti.engine.impl.GroupQueryImpl
 import org.activiti.engine.impl.UserQueryImpl
 import org.activiti.engine.impl.context.Context
+import org.codehaus.groovy.grails.plugins.springsecurity.SpringSecurityUtils as SSU
+import org.activiti.engine.impl.identity.IdentityInfoEntity
 
 /**
  *
@@ -57,13 +59,13 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	User findUserById(String userId) {
-		LOG.debug "findUserById ($userId)"
-		User user = getUserDomainClass().get(userId)
+		println "findUserById ($userId)"
+		User user = getUserDomainClass()."findBy${getUsernameClassName()}"(userId)
 		return user
 	}
 	
 	private getUserDomainClassName() {
-		return AH.application.config.grails.plugins.springsecurity.userLookup.userDomainClassName
+		return SSU.securityConfig.userLookup.userDomainClassName
 	}
 	
 	private getUserDomainClass() {
@@ -71,7 +73,7 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	private getGroupDomainClassName() {
-		return AH.application.config.grails.plugins.springsecurity.authority.className
+		return SSU.securityConfig.authority.className
 	}
 	
 	private getGroupDomainClass() {
@@ -79,39 +81,47 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	private getGroupJoinDomainClassName() {
-		return AH.application.config.grails.plugins.springsecurity.userLookup.authorityJoinClassName
+		return SSU.securityConfig.userLookup.authorityJoinClassName
 	}
 	
 	private getGroupJoinDomainClass() {
 		return AH.application.getDomainClass(getGroupJoinDomainClassName()).clazz
 	}
 	
+	private getUsernamePropertyName() {
+		return SSU.securityConfig.userLookup.usernamePropertyName
+	}
+		
+	private getUsernameClassName() {
+		return GNU.getClassNameRepresentation(getUsernamePropertyName())
+	}
+	
 	List<User> findUsersByGroupId(String groupId) {
-		LOG.debug "findUsersByGroupId ($groupId)"
+		println "findUsersByGroupId ($groupId)"
 		throw new UnsupportedOperationException()
 	}
 	
 	boolean isValidUser(String userId) {
-		LOG.debug "isValidUser ($userId)"
-		return getUserDomainClass().exists(userId)
+		println "isValidUser ($userId)"
+		return getUserDomainClass()."findBy${getUsernameClassName()}"(userId) != null
 	}
 	
 	UserQuery createNewUserQuery() {
-		LOG.debug "SpringSecurityIdentitySession.createNewUserQuery()"
+		println "SpringSecurityIdentitySession.createNewUserQuery()"
 		return new UserQueryImpl(Context.getProcessEngineConfiguration().getCommandExecutorTxRequired())
 	}
 	
 	List<User> findUserByQueryCriteria(Object query, Page page) {
-		LOG.debug "findUserByQueryCriteria (${query.class.name}, $page)"
+		println "findUserByQueryCriteria (${query.class.name}, $page)"
 		List<User> users
 		String queryString = createUserQueryString(query)
-		LOG.debug "queryString = $queryString"
+		println "queryString = $queryString"
 		if (page) { // listPage()
 			users = getUserDomainClass().findAll(queryString, [offset:page.firstResult, max:page.maxResults])
 		} else { // list()
 			users = getUserDomainClass().findAll(queryString, Collections.emptyMap())
 		}
-		LOG.debug "query.groupId = ${query.groupId}"
+		println "query.groupId = ${query.groupId}"
 		if (users && query.groupId) {
 			users = users.findAll { it.authorities*.id.contains(query.groupId) }
 		}
@@ -119,9 +129,9 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	long findUserCountByQueryCriteria(Object query) {
-		LOG.debug "findUserCountByQueryCriteria (${query.class.name})"
+		println "findUserCountByQueryCriteria (${query.class.name})"
 		String queryString = createUserQueryString(query)
-		LOG.debug "queryString = $queryString"
+		println "queryString = $queryString"
 		return getUserDomainClass().executeQuery("select count(u) ${queryString}")[0]
 	}
 	
@@ -129,7 +139,7 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 		FastStringWriter queryString = new FastStringWriter()
 		queryString << "from ${getUserDomainClassName()} as u"
 		if (query.id)
-			queryString << " where u.id='${query.id}'"
+			queryString << " where u.${getUsernamePropertyName()}='${query.id}'"
 		
 		if (query.firstName) {
 			queryString << appendWhereOrAnd(queryString)
@@ -192,8 +202,8 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	List<Group> findGroupsByUser(String userId) {
-		LOG.debug "findGroupsByUser (${userId})"
-		def user = getUserDomainClass().get(userId)
+		println "findGroupsByUser (${userId})"
+		def user = getUserDomainClass()."findBy${getUsernameClassName()}"(userId)
 		def groups = user?.authorities.toList()
 		return groups
 	}
@@ -203,10 +213,10 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	List<Group> findGroupByQueryCriteria(Object query, Page page) {
-		LOG.debug "findGroupByQueryCriteria (${query.class.name}, $page)"
+		println "findGroupByQueryCriteria (${query.class.name}, $page)"
 		List<Group> groups
 		String queryString = createGroupQueryString(query)
-		LOG.debug "queryString = $queryString"
+		println "queryString = $queryString"
 		if (page) { // listPage()
 			groups = getGroupJoinDomainClass().findAll(queryString, [offset:page.firstResult, max:page.maxResults]).collect{it.userGroup}
 		} else { // list()
@@ -216,9 +226,9 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	long findGroupCountByQueryCriteria(Object query) {
-		LOG.debug "findGroupCountByQueryCriteria (${query.class.name})"
+		println "findGroupCountByQueryCriteria (${query.class.name})"
 		String queryString = createGroupQueryString(query)
-		LOG.debug "queryString = $queryString"
+		println "queryString = $queryString"
 		return getGroupJoinDomainClass().executeQuery("select count(g) ${queryString}")[0]
 	}
 	
@@ -240,7 +250,8 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 		}
 		
 		if (query.type) {
-			throw new UnsupportedOperationException("Group type is not supported! Please contact the developer if you need it.")
+			queryString << appendWhereOrAnd(queryString)
+			queryString << "g.${groupPropertyName}.type = '${query.type}'"
 		}
 		
 		if (query.userId) {
@@ -266,6 +277,39 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	private String appendWhereOrAnd(FastStringWriter queryString) {
 		return queryString.value.indexOf("where") > -1? " and ": " where "
 	}
+	
+	void deleteUserInfoByUserIdAndKey(String userId, String key) {
+		throw new UnsupportedOperationException()
+	}
+	
+	void deleteIdentityInfo(IdentityInfoEntity identityInfo) {
+		throw new UnsupportedOperationException()
+	}
+	
+	IdentityInfoEntity findUserAccountByUserIdAndKey(String userId, String userPassword, String key) {
+		throw new UnsupportedOperationException()
+	}
+	
+	void setUserInfo(String userId, String userPassword, String type, String key, String value, String accountPassword, Map<String, String> accountDetails) {
+		throw new UnsupportedOperationException()
+	}
+	
+	byte[] encryptPassword(String accountPassword, String userPassword) {
+		throw new UnsupportedOperationException()
+	}
+	
+	String decryptPassword(byte[] storedPassword, String userPassword) {
+		throw new UnsupportedOperationException()
+	}
+	
+	IdentityInfoEntity findUserInfoByUserIdAndKey(String userId, String key) {
+		throw new UnsupportedOperationException()
+	}
+	
+	List<String> findUserInfoKeysByUserIdAndType(String userId, String type) {
+		throw new UnsupportedOperationException()
+	}
+	
 	
 	// Session's methods
 	void flush() {
