@@ -14,15 +14,16 @@
 */
 package org.grails.activiti.springsecurity
 
-import org.apache.commons.lang.builder.HashCodeBuilder
-
 /**
 *
 * @author <a href='mailto:limcheekin@vobject.com'>Lim Chee Kin</a>
 *
 * @since 0.1
 */
+import org.apache.commons.lang.builder.HashCodeBuilder
+
 class UserRole implements Serializable {
+
 	User user
 	Role role
 

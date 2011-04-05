@@ -59,7 +59,7 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	User findUserById(String userId) {
-		println "findUserById ($userId)"
+		LOG.debug "findUserById ($userId)"
 		User user = getUserDomainClass()."findBy${getUsernameClassName()}"(userId)
 		return user
 	}
@@ -97,31 +97,31 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	List<User> findUsersByGroupId(String groupId) {
-		println "findUsersByGroupId ($groupId)"
+		LOG.debug "findUsersByGroupId ($groupId)"
 		throw new UnsupportedOperationException()
 	}
 	
 	boolean isValidUser(String userId) {
-		println "isValidUser ($userId)"
+		LOG.debug "isValidUser ($userId)"
 		return getUserDomainClass()."findBy${getUsernameClassName()}"(userId) != null
 	}
 	
 	UserQuery createNewUserQuery() {
-		println "SpringSecurityIdentitySession.createNewUserQuery()"
+		LOG.debug "SpringSecurityIdentitySession.createNewUserQuery()"
 		return new UserQueryImpl(Context.getProcessEngineConfiguration().getCommandExecutorTxRequired())
 	}
 	
 	List<User> findUserByQueryCriteria(Object query, Page page) {
-		println "findUserByQueryCriteria (${query.class.name}, $page)"
+		LOG.debug "findUserByQueryCriteria (${query.class.name}, $page)"
 		List<User> users
 		String queryString = createUserQueryString(query)
-		println "queryString = $queryString"
+		LOG.debug "queryString = $queryString"
 		if (page) { // listPage()
 			users = getUserDomainClass().findAll(queryString, [offset:page.firstResult, max:page.maxResults])
 		} else { // list()
 			users = getUserDomainClass().findAll(queryString, Collections.emptyMap())
 		}
-		println "query.groupId = ${query.groupId}"
+		LOG.debug "query.groupId = ${query.groupId}"
 		if (users && query.groupId) {
 			users = users.findAll { it.authorities*.id.contains(query.groupId) }
 		}
@@ -129,9 +129,9 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	long findUserCountByQueryCriteria(Object query) {
-		println "findUserCountByQueryCriteria (${query.class.name})"
+		LOG.debug "findUserCountByQueryCriteria (${query.class.name})"
 		String queryString = createUserQueryString(query)
-		println "queryString = $queryString"
+		LOG.debug "queryString = $queryString"
 		return getUserDomainClass().executeQuery("select count(u) ${queryString}")[0]
 	}
 	
@@ -202,7 +202,7 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	List<Group> findGroupsByUser(String userId) {
-		println "findGroupsByUser (${userId})"
+		LOG.debug "findGroupsByUser (${userId})"
 		def user = getUserDomainClass()."findBy${getUsernameClassName()}"(userId)
 		def groups = user?.authorities.toList()
 		return groups
@@ -213,10 +213,10 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	List<Group> findGroupByQueryCriteria(Object query, Page page) {
-		println "findGroupByQueryCriteria (${query.class.name}, $page)"
+		LOG.debug "findGroupByQueryCriteria (${query.class.name}, $page)"
 		List<Group> groups
 		String queryString = createGroupQueryString(query)
-		println "queryString = $queryString"
+		LOG.debug "queryString = $queryString"
 		if (page) { // listPage()
 			groups = getGroupJoinDomainClass().findAll(queryString, [offset:page.firstResult, max:page.maxResults]).collect{it.userGroup}
 		} else { // list()
@@ -226,9 +226,9 @@ class SpringSecurityIdentitySession implements IdentitySession, Session {
 	}
 	
 	long findGroupCountByQueryCriteria(Object query) {
-		println "findGroupCountByQueryCriteria (${query.class.name})"
+		LOG.debug "findGroupCountByQueryCriteria (${query.class.name})"
 		String queryString = createGroupQueryString(query)
-		println "queryString = $queryString"
+		LOG.debug "queryString = $queryString"
 		return getGroupJoinDomainClass().executeQuery("select count(g) ${queryString}")[0]
 	}
 	

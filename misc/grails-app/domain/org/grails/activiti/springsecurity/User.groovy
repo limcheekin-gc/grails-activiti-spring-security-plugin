@@ -23,6 +23,7 @@ package org.grails.activiti.springsecurity
 class User implements org.activiti.engine.identity.User {
 	
 	String id
+	String username
 	String email
 	String firstName
 	String lastName
@@ -31,25 +32,21 @@ class User implements org.activiti.engine.identity.User {
 	boolean accountExpired
 	boolean accountLocked
 	boolean passwordExpired
-	
+
 	static constraints = {
-		email email: true, blank: false, unique: true
+		username blank: false, unique: true
 		password blank: false
+		email email: true, blank: false, unique: true
 		firstName blank: false
 		lastName blank: false
 	}
-	
+
 	static mapping = {
 		password column: '`password`'
 		id generator: 'uuid'
 	}
-	
-	def beforeDelete = {
-		UserRole.removeAll(this)
-	}	
-	
+
 	Set<Role> getAuthorities() {
 		UserRole.findAllByUser(this).collect { it.role } as Set
 	}
-	
 }
