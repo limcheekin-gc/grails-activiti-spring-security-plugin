@@ -31,7 +31,7 @@ import org.springframework.web.context.request.RequestAttributes as RA
 class InteractiveAuthenticationSuccessEventListener implements ApplicationListener<InteractiveAuthenticationSuccessEvent> {
 	void onApplicationEvent(InteractiveAuthenticationSuccessEvent event) {
 		def sessionUsernameKey = CH.config.activiti.sessionUsernameKey?:ActivitiConstants.DEFAULT_SESSION_USERNAME_KEY
-		def session = SRH.request.getSession(false)
+		def session = SRH.request.getSession(true)
 		session[sessionUsernameKey] = event.authentication.name
 	}
 }
