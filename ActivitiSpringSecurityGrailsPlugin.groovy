@@ -23,11 +23,11 @@ import org.grails.activiti.ActivitiConstants
  */
 class ActivitiSpringSecurityGrailsPlugin {
 	// the plugin version
-	def version = "0.3"
+	def version = "0.4"
 	// the version or versions of Grails the plugin is designed for
 	def grailsVersion = "1.3.3 > *"
 	// the other plugins this plugin depends on
-	def dependsOn = [springSecurityCore: '1.0.1 > *', activiti: '5.4 > *']
+	def dependsOn = [springSecurityCore: '1.0.1 > *', activiti: '5.5 > *']
 	// resources that are excluded from plugin packaging
 	def pluginExcludes = [
 		"grails-app/views/error.gsp"
@@ -54,7 +54,8 @@ The plugin integrates Spring Security to Activiti as custom IdentityService by i
 		if (!disabledActiviti) {
 			println "Activiti Process Engine with Spring Security Initialization ..."
 			interactiveAuthenticationSuccessEventListener(org.grails.activiti.springsecurity.InteractiveAuthenticationSuccessEventListener)
-			springSecurityIdentitySessionFactory(org.grails.activiti.springsecurity.SpringSecurityIdentitySessionFactory)
+			userManagerFactory(org.grails.activiti.springsecurity.SpringSecurityUserManagerFactory)
+			groupManagerFactory(org.grails.activiti.springsecurity.SpringSecurityGroupManagerFactory)
 			processEngineConfiguration(org.activiti.spring.SpringProcessEngineConfiguration) {
 				processEngineName = CH.config.activiti.processEngineName?:ActivitiConstants.DEFAULT_PROCESS_ENGINE_NAME
 				databaseType = CH.config.activiti.databaseType?:ActivitiConstants.DEFAULT_DATABASE_TYPE
@@ -68,7 +69,7 @@ The plugin integrates Spring Security to Activiti as custom IdentityService by i
 				mailServerUsername = CH.config.activiti.mailServerUsername
 				mailServerPassword = CH.config.activiti.mailServerPassword
 				mailServerDefaultFrom = CH.config.activiti.mailServerDefaultFrom?:ActivitiConstants.DEFAULT_MAIL_SERVER_FROM
-				customSessionFactories = ref("springSecurityIdentitySessionFactory")
+				customSessionFactories = ref("userManagerFactory")
 				dataSource = ref("dataSource")
 				transactionManager = ref("transactionManager")
 			}

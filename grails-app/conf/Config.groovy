@@ -17,7 +17,7 @@ log4j = {
 
     warn   'org.mortbay.log'
 	
-	  debug  'org.grails.activiti.springsecurity.SpringSecurityIdentitySession'
+	  debug  'org.grails.activiti.springsecurity'
 }
 
 grails.plugins.springsecurity.userLookup.userDomainClassName = 'org.grails.activiti.springsecurity.User'

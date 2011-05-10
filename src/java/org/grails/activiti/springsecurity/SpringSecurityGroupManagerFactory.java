@@ -16,20 +16,19 @@ package org.grails.activiti.springsecurity;
 
 import org.activiti.engine.impl.interceptor.Session;
 import org.activiti.engine.impl.interceptor.SessionFactory;
-import org.activiti.engine.impl.cfg.IdentitySession;
 
 /**
 *
 * @author <a href='mailto:limcheekin@vobject.com'>Lim Chee Kin</a>
 *
-* @since 0.1
+* @since 0.4
 */
-class SpringSecurityIdentitySessionFactory implements SessionFactory {
+class SpringSecurityGroupManagerFactory implements SessionFactory {
 	public Class<?> getSessionType() {
-		return IdentitySession.class;
+		return GroupManager.class;
 	}
 
 	public Session openSession() {
-		return new SpringSecurityIdentitySession();
+		return new GroupManager();
 	}
 }
