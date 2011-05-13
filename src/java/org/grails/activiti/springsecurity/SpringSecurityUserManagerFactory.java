@@ -25,10 +25,10 @@ import org.activiti.engine.impl.interceptor.SessionFactory;
 */
 class SpringSecurityUserManagerFactory implements SessionFactory {
 	public Class<?> getSessionType() {
-		return UserManager.class;
+		return org.activiti.engine.impl.persistence.entity.UserManager.class;
 	}
 
 	public Session openSession() {
-		return new UserManager();
+		return new UserManager(); // Customized UserManger extended from org.activiti.engine.impl.persistence.entity.UserManager
 	}
 }

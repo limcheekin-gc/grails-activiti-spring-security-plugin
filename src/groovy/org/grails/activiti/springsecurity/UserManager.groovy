@@ -57,22 +57,22 @@ class UserManager extends org.activiti.engine.impl.persistence.entity.UserManage
 	}
 	
 	UserEntity findUserById(String userId) {
-		println "findUserById ($userId)"
+		LOG.debug "findUserById ($userId)"
 		User user = getUserDomainClass()."findBy${getUsernameClassName()}"(userId)
 		return user
 	}
 	
 	List<User> findUserByQueryCriteria(Object query, Page page) {
-		println "findUserByQueryCriteria (${query.class.name}, $page)"
+		LOG.debug "findUserByQueryCriteria (${query.class.name}, $page)"
 		List<User> users
 		String queryString = createUserQueryString(query)
-		println "queryString = $queryString"
+		LOG.debug "queryString = $queryString"
 		if (page) { // listPage()
 			users = getUserDomainClass().findAll(queryString, [offset:page.firstResult, max:page.maxResults])
 		} else { // list()
 			users = getUserDomainClass().findAll(queryString, Collections.emptyMap())
 		}
-		println "query.groupId = ${query.groupId}"
+		LOG.debug "query.groupId = ${query.groupId}"
 		if (users && query.groupId) {
 			users = users.findAll { it.authorities*.id.contains(query.groupId) }
 		}
@@ -80,14 +80,14 @@ class UserManager extends org.activiti.engine.impl.persistence.entity.UserManage
 	}
 	
 	long findUserCountByQueryCriteria(Object query) {
-		println "findUserCountByQueryCriteria (${query.class.name})"
+		LOG.debug "findUserCountByQueryCriteria (${query.class.name})"
 		String queryString = createUserQueryString(query)
-		println "queryString = $queryString"
+		LOG.debug "queryString = $queryString"
 		return getUserDomainClass().executeQuery("select count(u) ${queryString}")[0]
 	}
 	
 	List<Group> findGroupsByUser(String userId) {
-		println "findGroupsByUser (${userId})"
+		LOG.debug "findGroupsByUser (${userId})"
 		def user = getUserDomainClass()."findBy${getUsernameClassName()}"(userId)
 		def groups = user?.authorities.toList()
 		return groups
@@ -107,38 +107,32 @@ class UserManager extends org.activiti.engine.impl.persistence.entity.UserManage
 	
 	private String createUserQueryString(Object query) {
 		FastStringWriter queryString = new FastStringWriter()
-		queryString << "from ${getUserDomainClassName()} as u"
+		queryString << "from ${getUserDomainClassName()} as u where 1=1"
 		if (query.id)
-			queryString << " where u.${getUsernamePropertyName()}='${query.id}'"
+			queryString << " and u.${getUsernamePropertyName()}='${query.id}'"
 		
 		if (query.firstName) {
-			queryString << appendWhereOrAnd(queryString)
-			queryString << "u.firstName = '${query.firstName}'"
+			queryString << " and u.firstName = '${query.firstName}'"
 		}
 		
 		if (query.firstNameLike) {
-			queryString << appendWhereOrAnd(queryString)
-			queryString << "u.firstName like '${query.firstNameLike}'"
+			queryString << " and u.firstName like '${query.firstNameLike}'"
 		}
 		
 		if (query.lastName) {
-			queryString << appendWhereOrAnd(queryString)
-			queryString << "u.lastName = '${query.lastName}'"
+			queryString << " and u.lastName = '${query.lastName}'"
 		}
 		
 		if (query.lastNameLike) {
-			queryString << appendWhereOrAnd(queryString)
-			queryString << "u.lastName like '${query.lastNameLike}'"
+			queryString << " and u.lastName like '${query.lastNameLike}'"
 		}
 		
 		if (query.email) {
-			queryString << appendWhereOrAnd(queryString)
-			queryString << "u.email = '${query.email}'"
+			queryString << " and u.email = '${query.email}'"
 		}
 		
 		if (query.emailLike) {
-			queryString << appendWhereOrAnd(queryString)
-			queryString << "u.email like '${query.emailLike}'"
+			queryString << " and u.email like '${query.emailLike}'"
 		}
 		
 		if (query.orderBy) {
@@ -161,5 +155,4 @@ class UserManager extends org.activiti.engine.impl.persistence.entity.UserManage
 	private getUserDomainClass() {
 		return AH.application.getDomainClass(getUserDomainClassName()).clazz
 	}
-	
 }

@@ -69,7 +69,7 @@ The plugin integrates Spring Security to Activiti as custom IdentityService by i
 				mailServerUsername = CH.config.activiti.mailServerUsername
 				mailServerPassword = CH.config.activiti.mailServerPassword
 				mailServerDefaultFrom = CH.config.activiti.mailServerDefaultFrom?:ActivitiConstants.DEFAULT_MAIL_SERVER_FROM
-				customSessionFactories = ref("userManagerFactory")
+				customSessionFactories = [ref("userManagerFactory"), ref("groupManagerFactory")]
 				dataSource = ref("dataSource")
 				transactionManager = ref("transactionManager")
 			}

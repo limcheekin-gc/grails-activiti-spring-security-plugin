@@ -59,17 +59,17 @@ class GroupManager extends org.activiti.engine.impl.persistence.entity.GroupMana
 	}
 	
 	List<Group> findGroupsByUser(String userId) {
-		println "findGroupsByUser (${userId})"
+		LOG.debug "findGroupsByUser (${userId})"
 		def user = getUserDomainClass()."findBy${getUsernameClassName()}"(userId)
 		def groups = user?.authorities.toList()
 		return groups
 	}
 	
 	List<Group> findGroupByQueryCriteria(Object query, Page page) {
-		println "findGroupByQueryCriteria (${query.class.name}, $page)"
+		LOG.debug "findGroupByQueryCriteria (${query.class.name}, $page)"
 		List<Group> groups
 		String queryString = createGroupQueryString(query)
-		println "queryString = $queryString"
+		LOG.debug "queryString = $queryString"
 		if (page) { // listPage()
 			groups = getGroupJoinDomainClass().findAll(queryString, [offset:page.firstResult, max:page.maxResults]).collect{it.userGroup}
 		} else { // list()
@@ -79,37 +79,33 @@ class GroupManager extends org.activiti.engine.impl.persistence.entity.GroupMana
 	}
 	
 	long findGroupCountByQueryCriteria(Object query) {
-		println "findGroupCountByQueryCriteria (${query.class.name})"
+		LOG.debug "findGroupCountByQueryCriteria (${query.class.name})"
 		String queryString = createGroupQueryString(query)
-		println "queryString = $queryString"
+		LOG.debug "queryString = $queryString"
 		return getGroupJoinDomainClass().executeQuery("select count(g) ${queryString}")[0]
 	}
 	
 	private String createGroupQueryString(Object query) {
 		FastStringWriter queryString = new FastStringWriter()
-		queryString << "from ${getGroupJoinDomainClassName()} as g"
+		queryString << "from ${getGroupJoinDomainClassName()} as g where 1=1"
 		String groupPropertyName = GNU.getPropertyName(getGroupDomainClassName())
 		if (query.id)
-			queryString << " where g.${groupPropertyName}.id='${query.id}'"
+			queryString << " and g.${groupPropertyName}.id='${query.id}'"
 		
 		if (query.name) {
-			queryString << appendWhereOrAnd(queryString)
-			queryString << "g.${groupPropertyName}.name = '${query.name}'"
+			queryString << " and g.${groupPropertyName}.name = '${query.name}'"
 		}
 		
 		if (query.nameLike) {
-			queryString << appendWhereOrAnd(queryString)
-			queryString << "g.${groupPropertyName}.name like '${query.nameLike}'"
+			queryString << " and g.${groupPropertyName}.name like '${query.nameLike}'"
 		}
 		
 		if (query.type) {
-			queryString << appendWhereOrAnd(queryString)
-			queryString << "g.${groupPropertyName}.type = '${query.type}'"
+			queryString << " and g.${groupPropertyName}.type = '${query.type}'"
 		}
 		
 		if (query.userId) {
-			queryString << appendWhereOrAnd(queryString)
-			queryString << "g.${GNU.getPropertyName(getUserDomainClassName())}.id = '${query.userId}'"
+			queryString << " and g.${GNU.getPropertyName(getUserDomainClassName())}.id = '${query.userId}'"
 		}
 		
 		if (query.orderBy) {
@@ -138,5 +134,9 @@ class GroupManager extends org.activiti.engine.impl.persistence.entity.GroupMana
 	
 	private getGroupJoinDomainClass() {
 		return AH.application.getDomainClass(getGroupJoinDomainClassName()).clazz
+	}
+	
+	private getUserDomainClassName() {
+		return SSU.securityConfig.userLookup.userDomainClassName
 	}
 }
