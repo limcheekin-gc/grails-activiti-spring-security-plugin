@@ -143,4 +143,12 @@ class GroupManager extends org.activiti.engine.impl.persistence.entity.GroupMana
 	private getUserDomainClass() {
 		return AH.application.getDomainClass(getUserDomainClassName()).clazz
 	}
+	
+	private getUsernamePropertyName() {
+		return SSU.securityConfig.userLookup.usernamePropertyName
+	}
+		
+	private getUsernameClassName() {
+		return GNU.getClassNameRepresentation(getUsernamePropertyName())
+	}
 }
