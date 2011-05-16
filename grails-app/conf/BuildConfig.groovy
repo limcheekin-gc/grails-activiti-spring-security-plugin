@@ -30,4 +30,4 @@ grails.project.dependency.resolution = {
     }
 }
 
-grails.plugin.location.activiti="../grails-activiti-plugin"
+// grails.plugin.location.activiti="../grails-activiti-plugin"
