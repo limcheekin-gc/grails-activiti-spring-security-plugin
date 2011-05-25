@@ -51,7 +51,7 @@ The plugin integrates Spring Security to Activiti as custom IdentityService by i
 	def doWithSpring = {
 		def disabledActiviti = System.getProperty("disabledActiviti")
 		
-		if (!disabledActiviti) {
+		if (!disabledActiviti && !CH.config.activiti.disabled) {
 			println "Activiti Process Engine with Spring Security Initialization ..."
 			interactiveAuthenticationSuccessEventListener(org.grails.activiti.springsecurity.InteractiveAuthenticationSuccessEventListener)
 			userManagerFactory(org.grails.activiti.springsecurity.SpringSecurityUserManagerFactory)
