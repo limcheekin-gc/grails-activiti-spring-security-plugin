@@ -27,12 +27,12 @@ class SetAuthenticatedUserIdFilters {
 	def filters = {
 		all(controller:'*', action:'*') {
 			before = {
-				if (springSecurityService.isLoggedIn()) {
+				if (springSecurityService.isLoggedIn() && identityService) {
 					identityService.authenticatedUserId = springSecurityService.principal.username
 				}
 			}
 			after = { 
-				identityService.authenticatedUserId = null 
+				identityService?.authenticatedUserId = null 
 			}
 			afterView = {
 			}
