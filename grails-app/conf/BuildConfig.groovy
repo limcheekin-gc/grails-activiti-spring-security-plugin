@@ -28,6 +28,11 @@ grails.project.dependency.resolution = {
 
         // runtime 'mysql:mysql-connector-java:5.1.5'
     }
+	
+	plugins {
+		compile ":activiti:5.5"
+		compile ":spring-security-core:1.0.1"
+	}
 }
 
 // grails.plugin.location.activiti="../grails-activiti-plugin"
